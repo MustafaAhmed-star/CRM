@@ -1,0 +1,34 @@
+ 
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Home Page</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <style>
+            .lead{
+                padding-top: 10px;
+                padding-bottom : 10px;
+                padding-left: 6px;
+                padding-right: 6px;
+                margin-top:10px;
+                background-color: white;
+                width:100%
+            }
+        </style>
+    </head>
+    <body> 
+        <h2> This is all of our leads </h2> 
+        {% for lead in leads  %}
+        <div class="lead">
+            <a href='/leads/{{lead.pk}}'>{{lead.first_name}}</a>
+        </div>
+       
+        
+        {% endfor %}
+        <script src="" async defer></script>
+    </body>
+</html>
+<h1
