@@ -1,10 +1,19 @@
-
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
-from django.urls import reverse
-from .models import Lead
+from django.urls import reverse ,reverse_lazy
+from .models import Lead,User
 from .forms import LeadForm
 from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView
-# Create your views here.
+from django.contrib.auth.forms import UserCreationForm
+  # Create your views here.
+
+class SignupView(CreateView):
+    template_name = 'registration/signup.html'
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    model = User
+
+
 def home_page(request):
     return render(request,'home.html')
 
@@ -37,6 +46,15 @@ class LeadCreateView(CreateView):
     form_class= LeadForm
     def get_success_url(self):
         return reverse('leads:lead')
+    def form_valid(self, form):
+        """Send email"""
+        send_mail(
+            subject="A lead has been created",
+            message="Go to the site ",
+            from_email="test@test.com",
+            recipient_list=["kkamen24@gmail.com"]
+        )
+        return super(LeadCreateView,self).form_valid(form)
 def lead_create(request ):
     form =LeadForm()
     if request.method=='POST':
