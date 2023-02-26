@@ -1,15 +1,17 @@
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.urls import reverse ,reverse_lazy
-from .models import Lead,User
-from .forms import LeadForm
+from .models import Lead ,User
+from .forms import LeadForm,CustomUserCreationForm
 from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView
-from django.contrib.auth.forms import UserCreationForm
+#from django.contrib.auth.forms import UserCreationForm
+
+from django.conf import settings
   # Create your views here.
 
 class SignupView(CreateView):
     template_name = 'registration/signup.html'
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm 
     success_url = reverse_lazy('login')
     model = User
 
