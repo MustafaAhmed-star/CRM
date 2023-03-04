@@ -22,6 +22,7 @@ from django.contrib.auth.views import LoginView,LogoutView
 from leads.views import SignupView
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("agents/", include('agents.urls',namespace="agents")),
     path("leads/", include('leads.urls',namespace="leads")),
     path('',home_page,name='home'),
     path('login/',LoginView.as_view(),name='login'),

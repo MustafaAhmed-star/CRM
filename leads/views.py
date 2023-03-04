@@ -1,9 +1,11 @@
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.urls import reverse ,reverse_lazy
-from .models import Lead ,User
+from .models import Lead ,User ,UserProfile
 from .forms import LeadForm,CustomUserCreationForm
 from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models.signals import post_save
 #from django.contrib.auth.forms import UserCreationForm
 
 from django.conf import settings
@@ -19,7 +21,7 @@ class SignupView(CreateView):
 def home_page(request):
     return render(request,'home.html')
 
-class LeadListView(ListView):
+class LeadListView(LoginRequiredMixin,ListView):
     template_name='lead_list.html'
     queryset=Lead.objects.all()
     context_object_name='leads'
@@ -33,7 +35,7 @@ def lead_list(request):
     }
     return render(request , 'lead_list.html',context)
  
-class LeadDetailView(DetailView):
+class LeadDetailView(LoginRequiredMixin,DetailView):
     template_name='lead_detail.html'
     queryset=Lead.objects.all()
     context_object_name='leads'
@@ -43,7 +45,7 @@ def lead_detail(request,pk):
     context={
         'leads':lead,}
     return render(request,'lead_detail.html',context)
-class LeadCreateView(CreateView):
+class LeadCreateView(LoginRequiredMixin,CreateView):
     template_name='lead_create.html'
     form_class= LeadForm
     def get_success_url(self):
@@ -73,7 +75,7 @@ def lead_create(request ):
     }
     
     return render(request,'lead_create.html',context )
-class LeadUpdateView(UpdateView):
+class LeadUpdateView(LoginRequiredMixin,UpdateView):
     template_name='lead_update.html'
     queryset=Lead.objects.all()
     form_class=LeadForm
@@ -105,6 +107,16 @@ def lead_update(request, pk):
     return render(request,'lead_update.html',context)
 #i didnt create delete class because  i prefer being without template 
 def lead_delete(request, pk):
+
     lead= Lead.objects.get(id=pk)
     lead.delete()
     return redirect('/leads')
+
+#create a signal
+def post_user_created_signla(sender,instance,created,**kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+     
+
+post_save.connect(post_user_created_signla,sender=User)
