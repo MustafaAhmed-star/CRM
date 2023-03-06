@@ -3,7 +3,8 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    pass  
+    is_oraganisor = models.BooleanField(default=True)
+    is_agent = models.BooleanField(default=False)  
 
 
 
@@ -21,7 +22,8 @@ class Lead(models.Model):
     last_name = models.CharField(max_length=20)
     age = models.IntegerField(default=0)
     #realtion
-    agent = models.ForeignKey("Agent", on_delete=models.CASCADE)
+    agent = models.ForeignKey("Agent",null=True,blank=True,on_delete=models.SET_NULL)
+    oraganisation = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
 
     phoned = models.BooleanField(default =False)
     source = models.CharField(choices=source_choices ,max_length=100)

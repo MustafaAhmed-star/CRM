@@ -6,6 +6,7 @@ from .forms import LeadForm,CustomUserCreationForm
 from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.signals import post_save
+from agents.mixins import OrgansisorAndLoginRequiredMixin
 #from django.contrib.auth.forms import UserCreationForm
 
 from django.conf import settings
@@ -25,17 +26,37 @@ class LeadListView(LoginRequiredMixin,ListView):
     template_name='lead_list.html'
     queryset=Lead.objects.all()
     context_object_name='leads'
+    '''''
+    #i do this code to filter the list by agent
+    def get_queryset(self):
+        # Get the currently logged-in agent
+        agent = self.request.user.agent
 
- 
+        # Filter the leads by the current agent
+        queryset = Lead.objects.filter(agent=agent)
+
+        return queryset    
+    '''''
+    # intial queryset of leads for the entire oraganisation
+    def get_queryset(self) :
+        user=self.request.user
+        if user.is_oraganisor:
+            queryset = Lead.objects.filter(oraganisation=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(oraganisation=user.agent.oraganisation)
+            #filter for the agent that logged in 
+            queryset = queryset.filter(agent__user=user)
+        return queryset
 def lead_list(request):
     leads = Lead.objects.all()
     context ={
         'leads':leads,
 
     }
+    
     return render(request , 'lead_list.html',context)
  
-class LeadDetailView(LoginRequiredMixin,DetailView):
+class LeadDetailView(OrgansisorAndLoginRequiredMixin,DetailView):
     template_name='lead_detail.html'
     queryset=Lead.objects.all()
     context_object_name='leads'
@@ -45,7 +66,7 @@ def lead_detail(request,pk):
     context={
         'leads':lead,}
     return render(request,'lead_detail.html',context)
-class LeadCreateView(LoginRequiredMixin,CreateView):
+class LeadCreateView(OrgansisorAndLoginRequiredMixin,CreateView):
     template_name='lead_create.html'
     form_class= LeadForm
     def get_success_url(self):
@@ -75,7 +96,7 @@ def lead_create(request ):
     }
     
     return render(request,'lead_create.html',context )
-class LeadUpdateView(LoginRequiredMixin,UpdateView):
+class LeadUpdateView(OrgansisorAndLoginRequiredMixin,UpdateView):
     template_name='lead_update.html'
     queryset=Lead.objects.all()
     form_class=LeadForm
