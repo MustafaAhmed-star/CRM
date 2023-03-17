@@ -58,8 +58,17 @@ def lead_list(request):
  
 class LeadDetailView(OrgansisorAndLoginRequiredMixin,DetailView):
     template_name='lead_detail.html'
-    queryset=Lead.objects.all()
     context_object_name='leads'
+
+    def get_queryset(self) :
+        user=self.request.user
+        if user.is_oraganisor:
+            queryset = Lead.objects.filter(oraganisation=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(oraganisation=user.agent.oraganisation)
+            #filter for the agent that logged in 
+            queryset = queryset.filter(agent__user=user)
+        return queryset
 
 def lead_detail(request,pk):
     lead= Lead.objects.get(id=pk)
@@ -98,12 +107,13 @@ def lead_create(request ):
     return render(request,'lead_create.html',context )
 class LeadUpdateView(OrgansisorAndLoginRequiredMixin,UpdateView):
     template_name='lead_update.html'
-    queryset=Lead.objects.all()
     form_class=LeadForm
     context_object_name='leads'
     def get_success_url(self) :
         return reverse('leads:lead_detail',args=[self.object.pk])
-
+    def get_queryset(self) :
+        user=self.request.user
+        return Lead.objects.filter(oraganisation=user.userprofile)
 def lead_update(request, pk):
      
 
@@ -127,11 +137,19 @@ def lead_update(request, pk):
     }
     return render(request,'lead_update.html',context)
 #i didnt create delete class because  i prefer being without template 
+class LeadDeleteView(OrgansisorAndLoginRequiredMixin,DeleteView):
+    tempalte_name="lead_delete.html"
+    def get_success_url(self):
+        return reverse("leads:lead")
+    def get_queryset(self) :
+        user=self.request.user
+        return Lead.objects.filter(oraganisation=user.userprofile)
 def lead_delete(request, pk):
 
     lead= Lead.objects.get(id=pk)
     lead.delete()
     return redirect('/leads')
+    
 
 #create a signal
 def post_user_created_signla(sender,instance,created,**kwargs):

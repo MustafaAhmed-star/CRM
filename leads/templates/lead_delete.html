@@ -1,0 +1,25 @@
+    {% extends "base.html" %}
+    {% block content %}
+      
+
+
+
+   <div class="container">
+          <h1>  lead </h1> 
+
+
+
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+          <div class="flex justify-end">  
+         <button class="flex mr-10 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded" type="submit" class="btn btn-primary">
+              Delete
+
+               </button>
+          <a class="flex mr-10 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded" href='{% url 'leads:lead_delete' leads.pk %}'> Delete </a>
+              </div>
+        </form>
+    </div>
+          {% endblock content %}
