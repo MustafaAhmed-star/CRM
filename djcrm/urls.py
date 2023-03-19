@@ -18,7 +18,7 @@ from django.urls import include, path
 from leads.views import home_page
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import LoginView,LogoutView , PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView
+from django.contrib.auth.views import LoginView,LogoutView , PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView,PasswordResetCompleteView
 from leads.views import SignupView
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -30,7 +30,8 @@ urlpatterns = [
     path('signup/',SignupView.as_view(),name='signup'),
     path('reset-password/',PasswordResetView.as_view(),name='reset-password'),
     path('reset-done/',PasswordResetDoneView.as_view(),name='password_reset_done'),
-    path('password-reset-confirm/<uidb64><token>>',PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
+    path('password-reset-confirm/<uidb64>/<token>/',PasswordResetConfirmView.as_view(),name='password_reset_confirm'),
+    path('password-reset-complete/',PasswordResetCompleteView.as_view(),name='password_reset_complete'),
 ] 
 
 if settings.DEBUG:

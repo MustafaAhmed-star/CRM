@@ -41,12 +41,23 @@ class LeadListView(LoginRequiredMixin,ListView):
     def get_queryset(self) :
         user=self.request.user
         if user.is_oraganisor:
-            queryset = Lead.objects.filter(oraganisation=user.userprofile)
+            queryset = Lead.objects.filter(oraganisation=user.userprofile,agent__isnull=False)
         else:
-            queryset = Lead.objects.filter(oraganisation=user.agent.oraganisation)
+            queryset = Lead.objects.filter(oraganisation=user.agent.oraganisation,agent__isnull=False)
             #filter for the agent that logged in 
             queryset = queryset.filter(agent__user=user)
         return queryset
+    def get_context_data(self, **kwargs) :
+        context= super(LeadListView).get_context_data(**kwargs)
+        user=self.request.user
+
+        if user.is_oraganisor:
+            queryset = Lead.objects.filter(oraganisation=user.userprofile,
+            agent__isnull=True)
+
+            context.update({
+                "unassigned_leads":queryset
+            })
 def lead_list(request):
     leads = Lead.objects.all()
     context ={
