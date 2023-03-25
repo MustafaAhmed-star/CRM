@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+    <body> 
+       
+    
+      <div class="container">
+            <a href="{% url 'leads:lead' %}">Go back to leads</a>
+          <h1 class=" md-5 text-4xl  "> Assign  a lead </h1> 
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="border-5 green-button active">Create</button>
+        </form>
+    </div>
+      
+
+    </body>
+
+  
+{% endblock content %}

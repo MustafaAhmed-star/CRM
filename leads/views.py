@@ -1,9 +1,9 @@
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.urls import reverse ,reverse_lazy
-from .models import Lead ,User ,UserProfile
-from .forms import LeadForm,CustomUserCreationForm
-from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView
+from .models import Lead ,User ,UserProfile,Category
+from .forms import LeadForm,CustomUserCreationForm,AssignForm
+from django.views.generic import ListView, DetailView ,DeleteView,CreateView ,UpdateView ,FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.signals import post_save
 from agents.mixins import OrgansisorAndLoginRequiredMixin
@@ -48,7 +48,7 @@ class LeadListView(LoginRequiredMixin,ListView):
             queryset = queryset.filter(agent__user=user)
         return queryset
     def get_context_data(self, **kwargs) :
-        context= super(LeadListView).get_context_data(**kwargs)
+        context= super(LeadListView,self).get_context_data(**kwargs)
         user=self.request.user
 
         if user.is_oraganisor:
@@ -58,14 +58,10 @@ class LeadListView(LoginRequiredMixin,ListView):
             context.update({
                 "unassigned_leads":queryset
             })
-def lead_list(request):
-    leads = Lead.objects.all()
-    context ={
-        'leads':leads,
 
-    }
+        return context    
+
     
-    return render(request , 'lead_list.html',context)
  
 class LeadDetailView(OrgansisorAndLoginRequiredMixin,DetailView):
     template_name='lead_detail.html'
@@ -81,11 +77,7 @@ class LeadDetailView(OrgansisorAndLoginRequiredMixin,DetailView):
             queryset = queryset.filter(agent__user=user)
         return queryset
 
-def lead_detail(request,pk):
-    lead= Lead.objects.get(id=pk)
-    context={
-        'leads':lead,}
-    return render(request,'lead_detail.html',context)
+
 class LeadCreateView(OrgansisorAndLoginRequiredMixin,CreateView):
     template_name='lead_create.html'
     form_class= LeadForm
@@ -100,22 +92,8 @@ class LeadCreateView(OrgansisorAndLoginRequiredMixin,CreateView):
             recipient_list=["kkamen24@gmail.com"]
         )
         return super(LeadCreateView,self).form_valid(form)
-def lead_create(request ):
-    form =LeadForm()
-    if request.method=='POST':
-        form=LeadForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/leads')
-        else:
-            form =LeadForm()
-
-
-    context={
-        'form':form
-    }
+ 
     
-    return render(request,'lead_create.html',context )
 class LeadUpdateView(OrgansisorAndLoginRequiredMixin,UpdateView):
     template_name='lead_update.html'
     form_class=LeadForm
@@ -125,29 +103,7 @@ class LeadUpdateView(OrgansisorAndLoginRequiredMixin,UpdateView):
     def get_queryset(self) :
         user=self.request.user
         return Lead.objects.filter(oraganisation=user.userprofile)
-def lead_update(request, pk):
-     
-
-    lead=Lead.objects.get(id=pk)
-    form1 =LeadForm(instance=lead)
-
-    if request.method=='POST':
-        form1=LeadForm(request.POST,instance=lead)
-
-        if form1.is_valid():
-            
-            form1.save()
-            return redirect(reverse('leads:lead_detail', args=[pk]))
-
-        else:
-           
-            form1=LeadForm()        
-    context={
-        'form1':form1,
-        'leads':lead
-    }
-    return render(request,'lead_update.html',context)
-#i didnt create delete class because  i prefer being without template 
+ 
 class LeadDeleteView(OrgansisorAndLoginRequiredMixin,DeleteView):
     tempalte_name="lead_delete.html"
     def get_success_url(self):
@@ -155,12 +111,7 @@ class LeadDeleteView(OrgansisorAndLoginRequiredMixin,DeleteView):
     def get_queryset(self) :
         user=self.request.user
         return Lead.objects.filter(oraganisation=user.userprofile)
-def lead_delete(request, pk):
-
-    lead= Lead.objects.get(id=pk)
-    lead.delete()
-    return redirect('/leads')
-    
+ 
 
 #create a signal
 def post_user_created_signla(sender,instance,created,**kwargs):
@@ -170,3 +121,75 @@ def post_user_created_signla(sender,instance,created,**kwargs):
      
 
 post_save.connect(post_user_created_signla,sender=User)
+
+
+
+
+class AssignAgentView(OrgansisorAndLoginRequiredMixin,FormView):
+    template_name="assign_agent.html"
+    form_class=AssignForm
+
+    def get_success_url(self):
+        return reverse("leads:lead")
+    
+    def get_form_kwargs(self,**kwargs):
+        kwargs= super(AssignAgentView,self).get_form_kwargs(**kwargs)
+
+        kwargs.update( {
+            "request":self.request,
+        })
+        return kwargs
+    def form_valid(self,form):
+        agent=form.cleaned_data["agent"]
+        lead=Lead.objects.get(id=self.kwargs["pk"])
+        lead.agent=agent
+        lead.save()
+        return super(AssignAgentView,self).form_valid(form)
+
+class CategoryListView(LoginRequiredMixin,ListView):
+
+    template_name="category_list.html"     
+    context_object_name="category_list" 
+
+    def get_context_data(self, **kwargs):
+        
+        user=self.request.user
+
+        context= super(CategoryListView,self).get_context_data(**kwargs)
+        if user.is_oraganisor:
+            queryset = Lead.objects.filter(oraganisation=user.userprofile )
+        else:
+            queryset = Lead.objects.filter(oraganisation=user.agent.oraganisation)
+        context.update({
+             "unassigned_lead_count":queryset.filter(category__isnull=True).count()
+        })
+        return context
+    def get_queryset(self) :
+        user=self.request.user
+        if user.is_oraganisor:
+            queryset = Category.objects.filter(oraganisation=user.userprofile )
+        else:
+            queryset = Category.objects.filter(oraganisation=user.agent.oraganisation)
+             
+        return queryset
+class CategoryDetailView(LoginRequiredMixin,DetailView):
+    template_name="category_detail.html"
+    context_object_name="category" 
+    def get_context_data(self, **kwargs):
+        
+        user=self.request.user
+
+        context= super(CategoryDetailView,self).get_context_data(**kwargs)
+        leads=self.get_object().leads.all()
+        context.update({
+             "leads":leads
+        })
+        return context
+    def get_queryset(self) :
+        user=self.request.user
+        if user.is_oraganisor:
+            queryset = Category.objects.filter(oraganisation=user.userprofile )
+        else:
+            queryset = Category.objects.filter(oraganisation=user.agent.oraganisation)
+             
+        return queryset
