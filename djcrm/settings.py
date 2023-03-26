@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 from decouple import config
 
@@ -39,10 +40,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    ##Local apps
     "leads",
     'django_bootstrap5',
     'agents',
+    #Third party apps
+    'crispy_forms',
+    "crispy_tailwind",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -125,6 +131,11 @@ STATICFILES_DIRS=[
     BASE_DIR / "static",
 ]
 STATIC_ROOT="static_root"
+# Base URL to serve media files from
+MEDIA_URL = '/media/'
+
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -139,3 +150,10 @@ EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
 LOGIN_REDIRECT_URL="/leads"
 LOGIN_URL="/login"
 LOGOUT_REDIRECT_URL='/login'
+
+
+
+## Change template packs
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+
+CRISPY_TEMPLATE_PACK = "tailwind"

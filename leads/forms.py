@@ -6,7 +6,7 @@ class LeadForm(forms.ModelForm):
     class Meta:
         model =Lead
         fields ='__all__'
-        exclude=['profile_picture','special_files','source',' agent']        
+        exclude=['special_files','data_added']        
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
@@ -32,4 +32,9 @@ class AssignForm(forms.Form):
         self.fields["agent"].queryset=agents
 
    
-   
+class LeadCategoryUpdateForm(forms.ModelForm):
+     
+     class Meta:
+        model =Lead
+        fields =['category']
+ 

@@ -1,18 +1,18 @@
 
 {% extends "base.html" %}
+{% load tailwind_filters %}
 
-{% load django_bootstrap5 %}
- {% block content %}
+{% block content %}
  
 
     <body> 
        
     
-      <div class="container">
+      <div class="max-w-lg mx-left""> 
           <h1 class=" md-5 text-4xl  "> Create  a lead </h1> 
-        <form method="post">
+        <form method="post" enctype="enctype="multipart/form-data"">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form|crispy }}
             <button type="submit" class="border-5 green-button active">Create</button>
         </form>
     </div>

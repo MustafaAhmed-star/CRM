@@ -22,12 +22,12 @@ class Lead(models.Model):
     last_name = models.CharField(max_length=20)
     age = models.IntegerField(default=0)
     #realtion
+    data_added=models.DateTimeField(auto_now_add=True)
     agent = models.ForeignKey("Agent",null=True,blank=True,on_delete=models.SET_NULL)
     oraganisation = models.ForeignKey(UserProfile,on_delete=models.CASCADE) 
-
     phoned = models.BooleanField(default =False)
     source = models.CharField(choices=source_choices ,max_length=100)
-    profile_picture=models.ImageField(blank=True ,null=True)
+    profile_picture=models.ImageField(upload_to='profile_pics',blank=True ,null=True)
     special_files = models.FileField(blank=True ,null=True)
     category = models.ForeignKey("Category",related_name="leads" , null=True,blank = True,on_delete=models.SET_NULL)
     def __str__(self)  :

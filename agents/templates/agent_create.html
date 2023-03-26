@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load tailwind_filters %}
+
 {% block content %}
-  <div>
+  <div class="max-w-lg mx-auto">
 
     <span>
         <a href="{% url 'agents:agent_list' %}">Go back to agents</a>
@@ -8,7 +10,7 @@
     <h1>Create a New Agent</h1>
     <form method="post">
         {% csrf_token %}
-        {{form.as_p}}
+         {{ form|crispy }}
         <button type="sumbit">Create</button>
     </form>
   </div>

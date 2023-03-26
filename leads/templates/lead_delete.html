@@ -1,10 +1,12 @@
     {% extends "base.html" %}
+    {% load tailwind_filters %}
+
     {% block content %}
       
 
 
 
-   <div class="container">
+   <div class="max-w-lg mx-left""> 
           <h1>  lead </h1> 
 
 
@@ -12,7 +14,7 @@
 
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+             {{ form|crispy }}
           <div class="flex justify-end">  
          <button class="flex mr-10 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded" type="submit" class="btn btn-primary">
               Delete
