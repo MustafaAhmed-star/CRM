@@ -2,6 +2,8 @@
 from pathlib import Path
 import os
 import environ
+from dotenv import load_dotenv
+load_dotenv()
 
 env = environ.Env(
     DEBUG=(bool,False)
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -78,8 +81,12 @@ WSGI_APPLICATION = "djcrm.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME":env("DB_NAME"),
+        "USER":env("DB_USER"),
+        "PASSWORD":env("DB_PASSWORD"),
+        'HOST':env("DB_HOST"),
+        'PORT':env("DB_PORT"),
     }
 }
 
@@ -123,6 +130,8 @@ STATICFILES_DIRS=[
     BASE_DIR / "static",
 ]
 STATIC_ROOT="static_root"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Base URL to serve media files from
 MEDIA_URL = '/media/'
 
